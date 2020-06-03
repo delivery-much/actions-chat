@@ -40,7 +40,7 @@ module.exports =
 /******/ 	// the startup function
 /******/ 	function startup() {
 /******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(676);
+/******/ 		return __webpack_require__(104);
 /******/ 	};
 /******/
 /******/ 	// run startup
@@ -1298,6 +1298,27 @@ exports.enable(load());
 /***/ (function(module) {
 
 module.exports = require("os");
+
+/***/ }),
+
+/***/ 104:
+/***/ (function(__unusedmodule, __unusedexports, __webpack_require__) {
+
+const core = __webpack_require__(470)
+const chat = __webpack_require__(254)
+
+// Run Action.
+const run = async () => {
+  try {
+    const url = core.getInput('url', { required: true })
+    await chat.send(url)
+  } catch (error) {
+    core.setFailed(error.message)
+  }
+}
+
+run()
+
 
 /***/ }),
 
@@ -10360,27 +10381,6 @@ function authenticate(state, options) {
 module.exports = function btoa(str) {
   return new Buffer(str).toString('base64')
 }
-
-
-/***/ }),
-
-/***/ 676:
-/***/ (function(__unusedmodule, __unusedexports, __webpack_require__) {
-
-const core = __webpack_require__(470)
-const chat = __webpack_require__(254)
-
-// Run Action.
-const run = async () => {
-  try {
-    const url = core.getInput('url', { required: true })
-    await chat.send(url)
-  } catch (error) {
-    core.setFailed(error.message)
-  }
-}
-
-run()
 
 
 /***/ }),

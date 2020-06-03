@@ -1,5 +1,5 @@
 const core = require('@actions/core')
-const chat = require('./chat')
+const chat = require('./src/chat')
 
 // Run Action.
 const run = async () => {

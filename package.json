@@ -2,11 +2,11 @@
   "name": "actions-chat",
   "version": "1.0.0",
   "description": "Send Google Chat notifications",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "lint": "standard",
     "lint:fix": "standard --fix",
-    "package": "ncc build src/index.js -o dist"
+    "package": "ncc build index.js -o dist"
   },
   "repository": {
     "type": "git",
