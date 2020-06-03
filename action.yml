@@ -1,8 +1,8 @@
 name: '@delivery-much/actions-chat'
 description: 'Send Google Chat notifications'
 branding:
-  icon: 'pen-tool'  
-  color: 'black'
+  icon: 'git-pull-request'
+  color: 'yellow'
 inputs:
   url:
     description: 'Google Chat Webhook URL'
