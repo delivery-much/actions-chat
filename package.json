@@ -1,0 +1,35 @@
+{
+  "name": "actions-chat",
+  "version": "1.0.0",
+  "description": "Send Google Chat notifications",
+  "main": "src/index.js",
+  "scripts": {
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "package": "ncc build src/index.js -o dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/delivery-much/actions-chat.git"
+  },
+  "keywords": [
+    "GitHub",
+    "Actions",
+    "JavaScript"
+  ],
+  "author": "@delivery-much",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/delivery-much/actions-chat/issues"
+  },
+  "homepage": "https://github.com/delivery-much/actions-chat#readme",
+  "dependencies": {
+    "@actions/core": "^1.1.0",
+    "@actions/github": "^1.1.0",
+    "axios": "^0.19.2"
+  },
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.3",
+    "standard": "^14.3.4"
+  }
+}

@@ -1,0 +1,9 @@
+name: 'delivery-much/actions-chat'
+description: 'Send Google Chat notifications'
+inputs:
+  url:
+    description: 'Google Chat Webhook URL'
+    required: true
+runs:
+  using: 'node12'
+  main: 'index.js'
