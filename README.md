@@ -1,6 +1,6 @@
 # @delivery-much/actions-chat
 
-This Action send Google Chat notifications.
+This Action send Google Chat messages.
 
 ## Inputs
 

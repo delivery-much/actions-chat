@@ -1,7 +1,7 @@
 {
   "name": "actions-chat",
   "version": "1.0.0",
-  "description": "Send Google Chat notifications",
+  "description": "Send Google Chat messages",
   "main": "index.js",
   "scripts": {
     "lint": "standard",
