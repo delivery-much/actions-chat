@@ -10,16 +10,21 @@ const { openedPullRequest } = require('./messages')
 const send = async (url) => {
   const axiosInstance = newAxios(url)
 
-  if (github.context.eventName === 'pull_request') {
-    const { repo } = github.context.repo
-    const title = github.context.payload.pull_request.title
-    const author = github.context.actor
-    const htmlUrl = github.context.payload.pull_request.html_url
+  switch (github.context.eventName) {
+    case 'pull_request': {
+      const { repo } = github.context.repo
+      const title = github.context.payload.pull_request.title
+      const author = github.context.actor
+      const htmlUrl = github.context.payload.pull_request.html_url
 
-    const body = openedPullRequest(repo, title, author, htmlUrl)
-    const response = await axiosInstance.post(url, body)
+      const body = openedPullRequest(repo, title, author, htmlUrl)
+      const response = await axiosInstance.post(url, body)
 
-    if (response.status !== 200) throw new Error(`Google Chat notification failed. response status=${response.status}`)
+      if (response.status !== 200) throw new Error(`Google Chat notification failed. response status=${response.status}`)
+      break
+    }
+    default:
+      throw new Error('Sorry, we don\'t accept this event type yet.')
   }
 }
 
