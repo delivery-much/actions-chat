@@ -1,6 +1,6 @@
 const github = require('@actions/github')
 const { newAxios } = require('./axios')
-const { openedPullRequest } = require('./messages')
+const { newPullRequest, newRelease } = require('./messages')
 
 /**
  * Send Google Chat message.
@@ -10,15 +10,45 @@ const { openedPullRequest } = require('./messages')
 const send = async (url) => {
   const axiosInstance = newAxios(url)
 
-  const { repo } = github.context.repo
-  const title = github.context.payload.pull_request.title
-  const author = github.context.actor
-  const htmlUrl = github.context.payload.pull_request.html_url
+  switch (github.context.eventName) {
+    case 'pull_request': {
+      const { repo } = github.context.repo
+      const title = github.context.payload.pull_request.title
+      const author = github.context.actor
+      const htmlUrl = github.context.payload.pull_request.html_url
 
-  const body = openedPullRequest(repo, title, author, htmlUrl)
-  const response = await axiosInstance.post(url, body)
+      const body = newPullRequest(repo, title, author, htmlUrl)
+      await post(axiosInstance, url, body)
+      break
+    }
+    case 'release': {
+      const { repo } = github.context.repo
+      const tag = github.context.payload.release.tag_name
+      const author = github.context.actor
+      const htmlUrl = github.context.payload.release.html_url
 
-  if (response.status !== 200) throw new Error(`Google Chat notification failed. response status=${response.status}`)
+      const body = newRelease(repo, tag, author, htmlUrl)
+      await post(axiosInstance, url, body)
+      break
+    }
+    default:
+      throw new Error('Sorry, we don\'t accept this event type yet.')
+  }
+}
+
+/**
+ * Do a HTTP POST with Axios.
+ *
+ * @param {AxiosInstance} axiosInstance - Axios instance
+ * @param {string} url - POST URL
+ * @param {object} body - POST body
+ */
+const post = async (axiosInstance, url, body) => {
+  try {
+    await axiosInstance.post(url, body)
+  } catch (error) {
+    throw new Error(`Google Chat notification failed. ${error}}`)
+  }
 }
 
 module.exports = { send }

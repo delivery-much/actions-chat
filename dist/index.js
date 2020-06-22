@@ -3067,7 +3067,7 @@ module.exports = {
 
 const github = __webpack_require__(469)
 const { newAxios } = __webpack_require__(836)
-const { openedPullRequest } = __webpack_require__(573)
+const { newPullRequest, newRelease } = __webpack_require__(573)
 
 /**
  * Send Google Chat message.
@@ -3077,15 +3077,45 @@ const { openedPullRequest } = __webpack_require__(573)
 const send = async (url) => {
   const axiosInstance = newAxios(url)
 
-  const { repo } = github.context.repo
-  const title = github.context.payload.pull_request.title
-  const author = github.context.actor
-  const htmlUrl = github.context.payload.pull_request.html_url
+  switch (github.context.eventName) {
+    case 'pull_request': {
+      const { repo } = github.context.repo
+      const title = github.context.payload.pull_request.title
+      const author = github.context.actor
+      const htmlUrl = github.context.payload.pull_request.html_url
 
-  const body = openedPullRequest(repo, title, author, htmlUrl)
-  const response = await axiosInstance.post(url, body)
+      const body = newPullRequest(repo, title, author, htmlUrl)
+      await post(axiosInstance, url, body)
+      break
+    }
+    case 'release': {
+      const { repo } = github.context.repo
+      const tag = github.context.payload.release.tag_name
+      const author = github.context.actor
+      const htmlUrl = github.context.payload.release.html_url
 
-  if (response.status !== 200) throw new Error(`Google Chat notification failed. response status=${response.status}`)
+      const body = newRelease(repo, tag, author, htmlUrl)
+      await post(axiosInstance, url, body)
+      break
+    }
+    default:
+      throw new Error('Sorry, we don\'t accept this event type yet.')
+  }
+}
+
+/**
+ * Do a HTTP POST with Axios.
+ *
+ * @param {AxiosInstance} axiosInstance - Axios instance
+ * @param {string} url - POST URL
+ * @param {object} body - POST body
+ */
+const post = async (axiosInstance, url, body) => {
+  try {
+    await axiosInstance.post(url, body)
+  } catch (error) {
+    throw new Error(`Google Chat notification failed. ${error}}`)
+  }
 }
 
 module.exports = { send }
@@ -9602,16 +9632,21 @@ module.exports = parse;
 /***/ (function(module) {
 
 /**
- * Build body of Google Chat card for opened Pull Requests.
+ * Build body of Google Chat card for new pull requests.
  *
- * @param {string} url - Google Chat Webhook URL
+ * @param {string} repo - Pull request repository
+ * @param {string} title - Pull request title
+ * @param {string} author - GitHub author username
+ * @param {string} htmlUrl - Pull request GitHub Url
+ *
+ * @returns {object} Google Chat card body
  */
-const openedPullRequest = (repo, title, author, htmlUrl) => {
+const newPullRequest = (repo, title, author, htmlUrl) => {
   const body = {
     cards: [
       {
         header: {
-          title: 'New Pull Request',
+          title: 'New pull request',
           imageUrl: 'https://vectorified.com/images/git-icon-4.png'
         },
         sections: [
@@ -9662,7 +9697,73 @@ const openedPullRequest = (repo, title, author, htmlUrl) => {
   return body
 }
 
-module.exports = { openedPullRequest }
+/**
+ * Build body of Google Chat card for new releases.
+ *
+ * @param {string} repo - Tag repository
+ * @param {string} tag - Tag name title
+ * @param {string} author - GitHub author username
+ * @param {string} htmlUrl - Tag GitHub Url
+ *
+ * @returns {object} Google Chat card body
+ */
+const newRelease = (repo, tag, author, htmlUrl) => {
+  const body = {
+    cards: [
+      {
+        header: {
+          title: 'New release',
+          imageUrl: 'https://theentropic.gallerycdn.vsassets.io/extensions/theentropic/git-tag-loader/1.0.0/1563851448848/Microsoft.VisualStudio.Services.Icons.Default'
+        },
+        sections: [
+          {
+            widgets: [
+              {
+                keyValue: {
+                  topLabel: 'Repository',
+                  content: repo
+                }
+              },
+              {
+                keyValue: {
+                  topLabel: 'Tag',
+                  content: tag
+                }
+              },
+              {
+                keyValue: {
+                  topLabel: 'Author',
+                  content: author
+                }
+              }
+            ]
+          },
+          {
+            widgets: [
+              {
+                buttons: [
+                  {
+                    textButton: {
+                      text: 'OPEN',
+                      onClick: {
+                        openLink: {
+                          url: htmlUrl
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  return body
+}
+
+module.exports = { newPullRequest, newRelease }
 
 
 /***/ }),
