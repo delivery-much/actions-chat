@@ -11,13 +11,12 @@ const send = async (url) => {
   const axiosInstance = newAxios(url)
 
   if (github.context.eventName === 'pull_request') {
-    const body = openedPullRequest(
-      github.context.repo,
-      github.context.payload.pull_request.title,
-      github.context.actor,
-      github.context.payload.pull_request.html_url
-    )
+    const { repo } = github.context.repo
+    const title = github.context.payload.pull_request.title
+    const author = github.context.actor
+    const htmlUrl = github.context.payload.pull_request.html_url
 
+    const body = openedPullRequest(repo, title, author, htmlUrl)
     const response = await axiosInstance.post(url, body)
 
     if (response.status !== 200) throw new Error(`Google Chat notification failed. response status=${response.status}`)
