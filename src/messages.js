@@ -8,7 +8,7 @@ const openedPullRequest = (repo, title, author, htmlUrl) => {
     cards: [
       {
         header: {
-          title: 'New Pull Request',
+          title: 'New pull request',
           imageUrl: 'https://vectorified.com/images/git-icon-4.png'
         },
         sections: [
