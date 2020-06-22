@@ -1,6 +1,6 @@
 const github = require('@actions/github')
 const { newAxios } = require('./axios')
-const { openedPullRequest } = require('./messages')
+const { newPullRequest, newRelease } = require('./messages')
 
 /**
  * Send Google Chat message.
@@ -17,7 +17,17 @@ const send = async (url) => {
       const author = github.context.actor
       const htmlUrl = github.context.payload.pull_request.html_url
 
-      const body = openedPullRequest(repo, title, author, htmlUrl)
+      const body = newPullRequest(repo, title, author, htmlUrl)
+      await post(axiosInstance, url, body)
+      break
+    }
+    case 'release': {
+      const { repo } = github.context.repo
+      const tag = github.context.payload.release.tag_name
+      const author = github.context.actor
+      const htmlUrl = github.context.payload.release.html_url
+
+      const body = newRelease(repo, tag, author, htmlUrl)
       await post(axiosInstance, url, body)
       break
     }
