@@ -3079,18 +3079,32 @@ const send = async (url) => {
 
   switch (github.context.eventName) {
     case 'pull_request': {
-      const body = openedPullRequest(
-        github.context.repo,
-        github.context.payload.pull_request.title,
-        github.context.actor,
-        github.context.payload.pull_request.html_url
-      )
-      const response = await axiosInstance.post(url, body)
-      if (response.status !== 200) throw new Error(`Google Chat notification failed. response status=${response.status}`)
+      const { repo } = github.context.repo
+      const title = github.context.payload.pull_request.title
+      const author = github.context.actor
+      const htmlUrl = github.context.payload.pull_request.html_url
+
+      const body = openedPullRequest(repo, title, author, htmlUrl)
+      await post(axiosInstance, url, body)
       break
     }
     default:
       throw new Error('Sorry, we don\'t accept this event type yet.')
+  }
+}
+
+/**
+ * Do a HTTP POST with Axios.
+ *
+ * @param {AxiosInstance} axiosInstance - Axios instance
+ * @param {string} url - POST URL
+ * @param {object} body - POST body
+ */
+const post = async (axiosInstance, url, body) => {
+  try {
+    await axiosInstance.post(url, body)
+  } catch (error) {
+    throw new Error(`Google Chat notification failed. ${error}}`)
   }
 }
 
