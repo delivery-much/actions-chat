@@ -22,19 +22,19 @@ const newPullRequest = (repo, title, author, htmlUrl) => {
               {
                 keyValue: {
                   topLabel: 'Repository',
-                  content: repo || '?'
+                  content: repo
                 }
               },
               {
                 keyValue: {
                   topLabel: 'Title',
-                  content: title || '?'
+                  content: title
                 }
               },
               {
                 keyValue: {
                   topLabel: 'Author',
-                  content: author || '?'
+                  content: author
                 }
               }
             ]
@@ -48,7 +48,7 @@ const newPullRequest = (repo, title, author, htmlUrl) => {
                       text: 'OPEN',
                       onClick: {
                         openLink: {
-                          url: htmlUrl || '?'
+                          url: htmlUrl
                         }
                       }
                     }
@@ -88,19 +88,19 @@ const newRelease = (repo, tag, author, htmlUrl) => {
               {
                 keyValue: {
                   topLabel: 'Repository',
-                  content: repo || '?'
+                  content: repo
                 }
               },
               {
                 keyValue: {
                   topLabel: 'Tag',
-                  content: tag || '?'
+                  content: tag
                 }
               },
               {
                 keyValue: {
                   topLabel: 'Author',
-                  content: author || '?'
+                  content: author
                 }
               }
             ]
@@ -114,7 +114,7 @@ const newRelease = (repo, tag, author, htmlUrl) => {
                       text: 'OPEN',
                       onClick: {
                         openLink: {
-                          url: htmlUrl || '?'
+                          url: htmlUrl
                         }
                       }
                     }
