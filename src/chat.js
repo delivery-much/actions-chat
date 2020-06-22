@@ -18,13 +18,9 @@ const send = async (url) => {
       github.context.payload.pull_request.html_url
     )
 
-    try {
-      await axiosInstance.post(url, body)
-    } catch (error) {
-      throw new Error(`Google Chat notification failed. Error:\n  ${error}}`)
-    }
-  } else {
-    throw new Error('Sorry, we don\'t accept this event type yet.')
+    const response = await axiosInstance.post(url, body)
+
+    if (response.status !== 200) throw new Error(`Google Chat notification failed. response status=${response.status}`)
   }
 }
 
