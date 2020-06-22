@@ -7,7 +7,7 @@ branding:
 inputs:
   url:
     description: 'Google Chat Webhook URL'
-    required: false
+    required: true
 runs:
   using: 'node12'
   main: 'dist/index.js'
