@@ -1,6 +1,13 @@
 # @delivery-much/actions-chat
 
-This Action send Google Chat messages.
+Messages are sent by [chat.js](src/chat.js) and defined in [messages.js](src/messages.js).
+
+We use Axios as HTTP client and the basic instance is defined in [axios.js](src/axios.js).
+
+## Supported messages
+
+- New pull request
+- New release
 
 ## Inputs
 
