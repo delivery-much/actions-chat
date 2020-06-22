@@ -1,5 +1,9 @@
-name: 'delivery-much/actions-chat'
-description: 'Send Google Chat notifications'
+name: 'Send Google Chat messages'
+description: 'Send Google Chat messages'
+author: '@delivery-much'
+branding:
+  icon: 'code'
+  color: 'yellow'
 inputs:
   url:
     description: 'Google Chat Webhook URL'

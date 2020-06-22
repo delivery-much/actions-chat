@@ -1,7 +1,7 @@
 {
   "name": "actions-chat",
   "version": "1.0.0",
-  "description": "Send Google Chat notifications",
+  "description": "Send Google Chat messages",
   "main": "index.js",
   "scripts": {
     "lint": "standard",
@@ -31,5 +31,10 @@
   "devDependencies": {
     "@zeit/ncc": "^0.22.3",
     "standard": "^14.3.4"
+  },
+  "standard": {
+    "ignore": [
+      "/dist/*.js"
+    ]
   }
 }
