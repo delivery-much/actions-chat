@@ -1,13 +1,15 @@
 const github = require('@actions/github')
 const { newAxios } = require('./axios')
-const { newPullRequest, newRelease } = require('./messages')
+const { newPullRequest } = require('./messages/pull-request')
+const { newRelease } = require('./messages/release')
+const { newDaily } = require('./messages/daily')
 
 /**
- * Send Google Chat message.
+ * Handle GitHub events context.
  *
  * @param {string} url - Google Chat Webhook URL
  */
-const send = async (url) => {
+const handleGitHubEvents = async (url) => {
   const axiosInstance = newAxios(url)
 
   switch (github.context.eventName) {
@@ -18,7 +20,7 @@ const send = async (url) => {
       const htmlUrl = github.context.payload.pull_request.html_url
 
       const body = newPullRequest(repo, title, author, htmlUrl)
-      await post(axiosInstance, url, body)
+      await send(axiosInstance, url, body)
       break
     }
     case 'release': {
@@ -28,7 +30,7 @@ const send = async (url) => {
       const htmlUrl = github.context.payload.release.html_url
 
       const body = newRelease(repo, tag, author, htmlUrl)
-      await post(axiosInstance, url, body)
+      await send(axiosInstance, url, body)
       break
     }
     default:
@@ -37,13 +39,25 @@ const send = async (url) => {
 }
 
 /**
- * Do a HTTP POST with Axios.
+ * Handle daily context.
+ *
+ * @param {string} url - Google Chat Webhook URL
+ * @param {string} order - Daily order
+ */
+const handleDaily = async (url, order) => {
+  const axiosInstance = newAxios(url)
+  const body = newDaily(order)
+  await send(axiosInstance, url, body)
+}
+
+/**
+ * Send Google Chat message.
  *
  * @param {AxiosInstance} axiosInstance - Axios instance
  * @param {string} url - POST URL
  * @param {object} body - POST body
  */
-const post = async (axiosInstance, url, body) => {
+const send = async (axiosInstance, url, body) => {
   try {
     await axiosInstance.post(url, body)
   } catch (error) {
@@ -51,4 +65,4 @@ const post = async (axiosInstance, url, body) => {
   }
 }
 
-module.exports = { send }
+module.exports = { handleGitHubEvents, handleDaily }
