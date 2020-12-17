@@ -1311,7 +1311,11 @@ const chat = __webpack_require__(254)
 const run = async () => {
   try {
     const url = core.getInput('url', { required: true })
-    await chat.send(url)
+    const dailyOrder = core.getInput('daily_order')
+
+    dailyOrder
+      ? await chat.handleDaily(url, dailyOrder)
+      : await chat.handleGitHubEvents(url)
   } catch (error) {
     core.setFailed(error.message)
   }
@@ -2518,6 +2522,43 @@ function paginatePlugin(octokit) {
 
 /***/ }),
 
+/***/ 155:
+/***/ (function(module) {
+
+/**
+ * Build body of Google Chat card for dailies.
+ *
+ * @param {string} dailyOrder - Daily order
+ *
+ * @returns {object} Google Chat card body
+ */
+const newDaily = (dailyOrder) => {
+  const body = {
+    cards: [
+      {
+        sections: [
+          {
+            widgets: [
+              {
+                keyValue: {
+                  contentMultiline: true,
+                  content: dailyOrder
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  return body
+}
+
+module.exports = { newDaily }
+
+
+/***/ }),
+
 /***/ 168:
 /***/ (function(module) {
 
@@ -3067,14 +3108,16 @@ module.exports = {
 
 const github = __webpack_require__(469)
 const { newAxios } = __webpack_require__(836)
-const { newPullRequest, newRelease } = __webpack_require__(573)
+const { newPullRequest } = __webpack_require__(358)
+const { newRelease } = __webpack_require__(359)
+const { newDaily } = __webpack_require__(155)
 
 /**
- * Send Google Chat message.
+ * Handle GitHub events context.
  *
  * @param {string} url - Google Chat Webhook URL
  */
-const send = async (url) => {
+const handleGitHubEvents = async (url) => {
   const axiosInstance = newAxios(url)
 
   switch (github.context.eventName) {
@@ -3085,7 +3128,7 @@ const send = async (url) => {
       const htmlUrl = github.context.payload.pull_request.html_url
 
       const body = newPullRequest(repo, title, author, htmlUrl)
-      await post(axiosInstance, url, body)
+      await send(axiosInstance, url, body)
       break
     }
     case 'release': {
@@ -3095,7 +3138,7 @@ const send = async (url) => {
       const htmlUrl = github.context.payload.release.html_url
 
       const body = newRelease(repo, tag, author, htmlUrl)
-      await post(axiosInstance, url, body)
+      await send(axiosInstance, url, body)
       break
     }
     default:
@@ -3104,13 +3147,25 @@ const send = async (url) => {
 }
 
 /**
- * Do a HTTP POST with Axios.
+ * Handle daily context.
+ *
+ * @param {string} url - Google Chat Webhook URL
+ * @param {string} order - Daily order
+ */
+const handleDaily = async (url, order) => {
+  const axiosInstance = newAxios(url)
+  const body = newDaily(order)
+  await send(axiosInstance, url, body)
+}
+
+/**
+ * Send Google Chat message.
  *
  * @param {AxiosInstance} axiosInstance - Axios instance
  * @param {string} url - POST URL
  * @param {object} body - POST body
  */
-const post = async (axiosInstance, url, body) => {
+const send = async (axiosInstance, url, body) => {
   try {
     await axiosInstance.post(url, body)
   } catch (error) {
@@ -3118,7 +3173,7 @@ const post = async (axiosInstance, url, body) => {
   }
 }
 
-module.exports = { send }
+module.exports = { handleGitHubEvents, handleDaily }
 
 
 /***/ }),
@@ -5773,6 +5828,154 @@ module.exports.default = axios;
 /***/ (function(module) {
 
 module.exports = require("assert");
+
+/***/ }),
+
+/***/ 358:
+/***/ (function(module) {
+
+/**
+ * Build body of Google Chat card for new pull requests.
+ *
+ * @param {string} repo - Pull request repository
+ * @param {string} title - Pull request title
+ * @param {string} author - GitHub author username
+ * @param {string} htmlUrl - Pull request GitHub Url
+ *
+ * @returns {object} Google Chat card body
+ */
+const newPullRequest = (repo, title, author, htmlUrl) => {
+  const body = {
+    cards: [
+      {
+        header: {
+          title: 'New pull request',
+          imageUrl: 'https://vectorified.com/images/git-icon-4.png'
+        },
+        sections: [
+          {
+            widgets: [
+              {
+                keyValue: {
+                  topLabel: 'Repository',
+                  content: repo
+                }
+              },
+              {
+                keyValue: {
+                  topLabel: 'Title',
+                  content: title
+                }
+              },
+              {
+                keyValue: {
+                  topLabel: 'Author',
+                  content: author
+                }
+              }
+            ]
+          },
+          {
+            widgets: [
+              {
+                buttons: [
+                  {
+                    textButton: {
+                      text: 'OPEN',
+                      onClick: {
+                        openLink: {
+                          url: htmlUrl
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  return body
+}
+
+module.exports = { newPullRequest }
+
+
+/***/ }),
+
+/***/ 359:
+/***/ (function(module) {
+
+/**
+ * Build body of Google Chat card for new releases.
+ *
+ * @param {string} repo - Tag repository
+ * @param {string} tag - Tag name title
+ * @param {string} author - GitHub author username
+ * @param {string} htmlUrl - Tag GitHub Url
+ *
+ * @returns {object} Google Chat card body
+ */
+const newRelease = (repo, tag, author, htmlUrl) => {
+  const body = {
+    cards: [
+      {
+        header: {
+          title: 'New release',
+          imageUrl: 'https://theentropic.gallerycdn.vsassets.io/extensions/theentropic/git-tag-loader/1.0.0/1563851448848/Microsoft.VisualStudio.Services.Icons.Default'
+        },
+        sections: [
+          {
+            widgets: [
+              {
+                keyValue: {
+                  topLabel: 'Repository',
+                  content: repo
+                }
+              },
+              {
+                keyValue: {
+                  topLabel: 'Tag',
+                  content: tag
+                }
+              },
+              {
+                keyValue: {
+                  topLabel: 'Author',
+                  content: author
+                }
+              }
+            ]
+          },
+          {
+            widgets: [
+              {
+                buttons: [
+                  {
+                    textButton: {
+                      text: 'OPEN',
+                      onClick: {
+                        openLink: {
+                          url: htmlUrl
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  return body
+}
+
+module.exports = { newRelease }
+
 
 /***/ }),
 
@@ -9624,146 +9827,6 @@ function parse(command, args, options) {
 }
 
 module.exports = parse;
-
-
-/***/ }),
-
-/***/ 573:
-/***/ (function(module) {
-
-/**
- * Build body of Google Chat card for new pull requests.
- *
- * @param {string} repo - Pull request repository
- * @param {string} title - Pull request title
- * @param {string} author - GitHub author username
- * @param {string} htmlUrl - Pull request GitHub Url
- *
- * @returns {object} Google Chat card body
- */
-const newPullRequest = (repo, title, author, htmlUrl) => {
-  const body = {
-    cards: [
-      {
-        header: {
-          title: 'New pull request',
-          imageUrl: 'https://vectorified.com/images/git-icon-4.png'
-        },
-        sections: [
-          {
-            widgets: [
-              {
-                keyValue: {
-                  topLabel: 'Repository',
-                  content: repo
-                }
-              },
-              {
-                keyValue: {
-                  topLabel: 'Title',
-                  content: title
-                }
-              },
-              {
-                keyValue: {
-                  topLabel: 'Author',
-                  content: author
-                }
-              }
-            ]
-          },
-          {
-            widgets: [
-              {
-                buttons: [
-                  {
-                    textButton: {
-                      text: 'OPEN',
-                      onClick: {
-                        openLink: {
-                          url: htmlUrl
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-  return body
-}
-
-/**
- * Build body of Google Chat card for new releases.
- *
- * @param {string} repo - Tag repository
- * @param {string} tag - Tag name title
- * @param {string} author - GitHub author username
- * @param {string} htmlUrl - Tag GitHub Url
- *
- * @returns {object} Google Chat card body
- */
-const newRelease = (repo, tag, author, htmlUrl) => {
-  const body = {
-    cards: [
-      {
-        header: {
-          title: 'New release',
-          imageUrl: 'https://theentropic.gallerycdn.vsassets.io/extensions/theentropic/git-tag-loader/1.0.0/1563851448848/Microsoft.VisualStudio.Services.Icons.Default'
-        },
-        sections: [
-          {
-            widgets: [
-              {
-                keyValue: {
-                  topLabel: 'Repository',
-                  content: repo
-                }
-              },
-              {
-                keyValue: {
-                  topLabel: 'Tag',
-                  content: tag
-                }
-              },
-              {
-                keyValue: {
-                  topLabel: 'Author',
-                  content: author
-                }
-              }
-            ]
-          },
-          {
-            widgets: [
-              {
-                buttons: [
-                  {
-                    textButton: {
-                      text: 'OPEN',
-                      onClick: {
-                        openLink: {
-                          url: htmlUrl
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-  return body
-}
-
-module.exports = { newPullRequest, newRelease }
 
 
 /***/ }),
