@@ -5,7 +5,11 @@ const chat = require('./src/chat')
 const run = async () => {
   try {
     const url = core.getInput('url', { required: true })
-    await chat.send(url)
+    const dailyOrder = core.getInput('daily_order')
+
+    dailyOrder
+      ? await chat.handleDaily(url, dailyOrder)
+      : await chat.handleGitHubEvents(url)
   } catch (error) {
     core.setFailed(error.message)
   }
