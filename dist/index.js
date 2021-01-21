@@ -1307,7 +1307,6 @@ module.exports = require("os");
 const core = __webpack_require__(470)
 const chat = __webpack_require__(254)
 
-// Run Action.
 const run = async () => {
   try {
     const url = core.getInput('url', { required: true })
@@ -3076,13 +3075,12 @@ const { newPullRequest, newRelease } = __webpack_require__(573)
  */
 const send = async (url) => {
   const axiosInstance = newAxios(url)
-
   switch (github.context.eventName) {
     case 'pull_request': {
       const { repo } = github.context.repo
-      const title = github.context.payload.pull_request.title
-      const author = github.context.actor
-      const htmlUrl = github.context.payload.pull_request.html_url
+      const { title } = github.context.payload.pull_request
+      const { actor: author } = github.context
+      const { html_url: htmlUrl } = github.context.payload.pull_request
 
       const body = newPullRequest(repo, title, author, htmlUrl)
       await post(axiosInstance, url, body)
@@ -3090,9 +3088,9 @@ const send = async (url) => {
     }
     case 'release': {
       const { repo } = github.context.repo
-      const tag = github.context.payload.release.tag_name
-      const author = github.context.actor
-      const htmlUrl = github.context.payload.release.html_url
+      const { tag_name: tag } = github.context.payload.release
+      const { actor: author } = github.context
+      const { html_url: htmlUrl } = github.context.payload.release
 
       const body = newRelease(repo, tag, author, htmlUrl)
       await post(axiosInstance, url, body)
