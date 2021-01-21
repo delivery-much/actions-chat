@@ -1307,6 +1307,7 @@ module.exports = require("os");
 const core = __webpack_require__(470)
 const chat = __webpack_require__(254)
 
+// Run Action.
 const run = async () => {
   try {
     const url = core.getInput('url', { required: true })
@@ -3069,12 +3070,11 @@ const { newAxios } = __webpack_require__(836)
 const { newPullRequest, newRelease } = __webpack_require__(573)
 
 /**
- * Send Google Chat message.
+ * Sends Google Chat message.
  *
  * @param {string} url - Google Chat Webhook URL
  */
 const send = async (url) => {
-  const axiosInstance = newAxios(url)
   switch (github.context.eventName) {
     case 'pull_request': {
       const { repo } = github.context.repo
@@ -3083,7 +3083,7 @@ const send = async (url) => {
       const { html_url: htmlUrl } = github.context.payload.pull_request
 
       const body = newPullRequest(repo, title, author, htmlUrl)
-      await post(axiosInstance, url, body)
+      await post(url, body)
       break
     }
     case 'release': {
@@ -3093,7 +3093,7 @@ const send = async (url) => {
       const { html_url: htmlUrl } = github.context.payload.release
 
       const body = newRelease(repo, tag, author, htmlUrl)
-      await post(axiosInstance, url, body)
+      await post(url, body)
       break
     }
     default:
@@ -3102,13 +3102,13 @@ const send = async (url) => {
 }
 
 /**
- * Do a HTTP POST with Axios.
+ * Does a HTTP POST with Axios.
  *
- * @param {AxiosInstance} axiosInstance - Axios instance
  * @param {string} url - POST URL
  * @param {object} body - POST body
  */
-const post = async (axiosInstance, url, body) => {
+const post = async (url, body) => {
+  const axiosInstance = newAxios(url)
   try {
     await axiosInstance.post(url, body)
   } catch (error) {
