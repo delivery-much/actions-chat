@@ -23,13 +23,15 @@ const send = async (url) => {
 }
 
 const handlePullRequest = async (url) => {
-  const { repo } = github.context.repo
-  const { title } = github.context.payload.pull_request
-  const { actor: author } = github.context
-  const { html_url: htmlUrl } = github.context.payload.pull_request
+  if (!github.context.pull_request.draft) {
+    const { repo } = github.context.repo
+    const { title } = github.context.payload.pull_request
+    const { actor: author } = github.context
+    const { html_url: htmlUrl } = github.context.payload.pull_request
 
-  const body = newPullRequest(repo, title, author, htmlUrl)
-  await post(url, body)
+    const body = newPullRequest(repo, title, author, htmlUrl)
+    await post(url, body)
+  }
 }
 
 const handleRelease = async (url) => {
