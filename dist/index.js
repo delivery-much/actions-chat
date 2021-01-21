@@ -3090,7 +3090,7 @@ const send = async (url) => {
 }
 
 const handlePullRequest = async (url) => {
-  if (!github.context.pull_request.draft) {
+  if (!github.context.payload.pull_request.draft) {
     const { repo } = github.context.repo
     const { title } = github.context.payload.pull_request
     const { actor: author } = github.context
