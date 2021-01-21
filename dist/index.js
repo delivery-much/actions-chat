@@ -3066,11 +3066,7 @@ module.exports = {
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
 const github = __webpack_require__(469)
-<<<<<<< HEAD
-const { newAxios } = __webpack_require__(836)
-=======
 const { post } = __webpack_require__(836)
->>>>>>> master
 const { newPullRequest, newRelease } = __webpack_require__(573)
 
 /**
