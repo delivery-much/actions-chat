@@ -3066,7 +3066,7 @@ module.exports = {
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
 const github = __webpack_require__(469)
-const { newAxios } = __webpack_require__(836)
+const { post } = __webpack_require__(836)
 const { newPullRequest, newRelease } = __webpack_require__(573)
 
 /**
@@ -3098,21 +3098,6 @@ const send = async (url) => {
     }
     default:
       throw new Error('Sorry, we don\'t accept this event type yet.')
-  }
-}
-
-/**
- * Does a HTTP POST with Axios.
- *
- * @param {string} url - POST URL
- * @param {object} body - POST body
- */
-const post = async (url, body) => {
-  const axiosInstance = newAxios(url)
-  try {
-    await axiosInstance.post(url, body)
-  } catch (error) {
-    throw new Error(`Google Chat notification failed. ${error}}`)
   }
 }
 
@@ -11799,7 +11784,7 @@ module.exports = require("url");
 const axios = __webpack_require__(53).default
 
 /**
- * Creates a new Axios instance.
+ * Creates new Axios instance.
  *
  * @param {string} baseURL - Endpoint base URL
  * @returns {AxiosInstance} Axios instance
@@ -11812,7 +11797,22 @@ const newAxios = (baseURL) => {
   })
 }
 
-module.exports = { newAxios }
+/**
+ * Does HTTP POST with Axios.
+ *
+ * @param {string} url - POST URL
+ * @param {object} body - POST body
+ */
+const post = async (url, body) => {
+  const axiosInstance = newAxios(url)
+  try {
+    await axiosInstance.post(url, body)
+  } catch (error) {
+    throw new Error(`Google Chat notification failed. ${error}}`)
+  }
+}
+
+module.exports = { post }
 
 
 /***/ }),

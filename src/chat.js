@@ -1,5 +1,5 @@
 const github = require('@actions/github')
-const { newAxios } = require('./axios')
+const { post } = require('./axios')
 const { newPullRequest, newRelease } = require('./messages')
 
 /**
@@ -31,21 +31,6 @@ const send = async (url) => {
     }
     default:
       throw new Error('Sorry, we don\'t accept this event type yet.')
-  }
-}
-
-/**
- * Does a HTTP POST with Axios.
- *
- * @param {string} url - POST URL
- * @param {object} body - POST body
- */
-const post = async (url, body) => {
-  const axiosInstance = newAxios(url)
-  try {
-    await axiosInstance.post(url, body)
-  } catch (error) {
-    throw new Error(`Google Chat notification failed. ${error}}`)
   }
 }
 
