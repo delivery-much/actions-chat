@@ -1,11 +1,5 @@
 const axios = require('axios').default
 
-/**
- * Creates new Axios instance.
- *
- * @param {string} baseURL - Endpoint base URL
- * @returns {AxiosInstance} Axios instance
- */
 const newAxios = (baseURL) => {
   return axios.create({
     baseURL: baseURL,

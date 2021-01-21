@@ -3077,28 +3077,36 @@ const { newPullRequest, newRelease } = __webpack_require__(573)
 const send = async (url) => {
   switch (github.context.eventName) {
     case 'pull_request': {
-      const { repo } = github.context.repo
-      const { title } = github.context.payload.pull_request
-      const { actor: author } = github.context
-      const { html_url: htmlUrl } = github.context.payload.pull_request
-
-      const body = newPullRequest(repo, title, author, htmlUrl)
-      await post(url, body)
+      await handlePullRequest(url)
       break
     }
     case 'release': {
-      const { repo } = github.context.repo
-      const { tag_name: tag } = github.context.payload.release
-      const { actor: author } = github.context
-      const { html_url: htmlUrl } = github.context.payload.release
-
-      const body = newRelease(repo, tag, author, htmlUrl)
-      await post(url, body)
+      await handleRelease(url)
       break
     }
     default:
       throw new Error('Sorry, we don\'t accept this event type yet.')
   }
+}
+
+const handlePullRequest = async (url) => {
+  const { repo } = github.context.repo
+  const { title } = github.context.payload.pull_request
+  const { actor: author } = github.context
+  const { html_url: htmlUrl } = github.context.payload.pull_request
+
+  const body = newPullRequest(repo, title, author, htmlUrl)
+  await post(url, body)
+}
+
+const handleRelease = async (url) => {
+  const { repo } = github.context.repo
+  const { tag_name: tag } = github.context.payload.release
+  const { actor: author } = github.context
+  const { html_url: htmlUrl } = github.context.payload.release
+
+  const body = newRelease(repo, tag, author, htmlUrl)
+  await post(url, body)
 }
 
 module.exports = { send }
@@ -11783,12 +11791,6 @@ module.exports = require("url");
 
 const axios = __webpack_require__(53).default
 
-/**
- * Creates new Axios instance.
- *
- * @param {string} baseURL - Endpoint base URL
- * @returns {AxiosInstance} Axios instance
- */
 const newAxios = (baseURL) => {
   return axios.create({
     baseURL: baseURL,
