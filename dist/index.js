@@ -3066,36 +3066,26 @@ module.exports = {
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
 const github = __webpack_require__(469)
+<<<<<<< HEAD
 const { newAxios } = __webpack_require__(836)
+=======
+const { post } = __webpack_require__(836)
+>>>>>>> master
 const { newPullRequest, newRelease } = __webpack_require__(573)
 
 /**
- * Send Google Chat message.
+ * Sends Google Chat message.
  *
  * @param {string} url - Google Chat Webhook URL
  */
 const send = async (url) => {
-  const axiosInstance = newAxios(url)
-
   switch (github.context.eventName) {
     case 'pull_request': {
-      const { repo } = github.context.repo
-      const title = github.context.payload.pull_request.title
-      const author = github.context.actor
-      const htmlUrl = github.context.payload.pull_request.html_url
-
-      const body = newPullRequest(repo, title, author, htmlUrl)
-      await post(axiosInstance, url, body)
+      await handlePullRequest(url)
       break
     }
     case 'release': {
-      const { repo } = github.context.repo
-      const tag = github.context.payload.release.tag_name
-      const author = github.context.actor
-      const htmlUrl = github.context.payload.release.html_url
-
-      const body = newRelease(repo, tag, author, htmlUrl)
-      await post(axiosInstance, url, body)
+      await handleRelease(url)
       break
     }
     default:
@@ -3103,19 +3093,26 @@ const send = async (url) => {
   }
 }
 
-/**
- * Do a HTTP POST with Axios.
- *
- * @param {AxiosInstance} axiosInstance - Axios instance
- * @param {string} url - POST URL
- * @param {object} body - POST body
- */
-const post = async (axiosInstance, url, body) => {
-  try {
-    await axiosInstance.post(url, body)
-  } catch (error) {
-    throw new Error(`Google Chat notification failed. ${error}}`)
+const handlePullRequest = async (url) => {
+  if (!github.context.payload.pull_request.draft) {
+    const { repo } = github.context.repo
+    const { title } = github.context.payload.pull_request
+    const { actor: author } = github.context
+    const { html_url: htmlUrl } = github.context.payload.pull_request
+
+    const body = newPullRequest(repo, title, author, htmlUrl)
+    await post(url, body)
   }
+}
+
+const handleRelease = async (url) => {
+  const { repo } = github.context.repo
+  const { tag_name: tag } = github.context.payload.release
+  const { actor: author } = github.context
+  const { html_url: htmlUrl } = github.context.payload.release
+
+  const body = newRelease(repo, tag, author, htmlUrl)
+  await post(url, body)
 }
 
 module.exports = { send }
@@ -11800,12 +11797,6 @@ module.exports = require("url");
 
 const axios = __webpack_require__(53).default
 
-/**
- * Creates a new Axios instance.
- *
- * @param {string} baseURL - Endpoint base URL
- * @returns {AxiosInstance} Axios instance
- */
 const newAxios = (baseURL) => {
   return axios.create({
     baseURL: baseURL,
@@ -11814,7 +11805,22 @@ const newAxios = (baseURL) => {
   })
 }
 
-module.exports = { newAxios }
+/**
+ * Does HTTP POST with Axios.
+ *
+ * @param {string} url - POST URL
+ * @param {object} body - POST body
+ */
+const post = async (url, body) => {
+  const axiosInstance = newAxios(url)
+  try {
+    await axiosInstance.post(url, body)
+  } catch (error) {
+    throw new Error(`Google Chat notification failed. ${error}}`)
+  }
+}
+
+module.exports = { post }
 
 
 /***/ }),
