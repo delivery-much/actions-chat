@@ -25,7 +25,7 @@ We use Axios as HTTP client and the basic instance is defined in [axios.js](src/
 name: chat-pull-request 
 on:
   pull_request:
-    types: [opened, reopened]
+    types: [opened, reopened, ready_for_review]
 jobs:
   chat:
     runs-on: ubuntu-latest
