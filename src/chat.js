@@ -13,6 +13,10 @@ const send = async (url) => {
       await handlePullRequest(url)
       break
     }
+    case 'pull_request_target': {
+      await handlePullRequest(url)
+      break
+    }
     case 'release': {
       await handleRelease(url)
       break
